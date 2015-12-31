@@ -8,7 +8,6 @@ use Archive::Zip;
 use Archive::Zip::MemberRead;
 use JSON;
 use Image::Size;
-
 # Documentation browser under "/perldoc"
 plugin 'PODRenderer';
 plugin "bootstrap3" => {
@@ -22,18 +21,57 @@ plugin "FontAwesome4";
 
 my $datapath = './data';
 
+sub nsort{
+	my ($a, $b) = @_;
+	my @a = split(/(\d+)/,$a);
+	my @b = split(/(\d+)/,$b);
+
+	my $res = 0;
+
+	my $lena = @a;
+	my $lenb = @b;
+
+	my $minlen = $lena<$lenb?$lena:$lenb;
+
+	foreach my $i (0..$minlen){
+		my $aa = $a[$i];
+		my $bb = $b[$i];
+		my $anum = $aa=~/^\d+$/;
+		my $bnum = $bb=~/^\d+$/;
+		my $subres = 0;
+		if($anum && $bnum){
+			$subres = $aa <=> $bb;
+		}
+		else{
+			$subres = $aa cmp $bb;
+		}
+		return $subres if $subres != 0
+	}
+	return $lena <=> $lenb;
+}
+
 get '/' => sub {
 	my $c = shift;
 	my $curpath = $c->param('p');
 	$curpath ||= $datapath;
-	my @files = <$curpath/*>;
+	opendir(DIR, $curpath);
+	my @files = readdir(DIR);
+	closedir(DIR);
+	
 	@files = map{ utf8::decode($_); $_; } @files;
+	@files = grep{ $_ !~ /^\./ }@files;
+	@files = map{ $curpath.'/'.$_; }@files;
+
 	@files = map{ 
 		my $dir = -d $_;
-		my ($name, $path, $ext) = fileparse($_, qr/\.[^.]*/); 
-		{name=>$name, path=>$path, ext=>lc($ext), is_dir=>$dir, orig=>$_};
+		my ($name, $path, $ext) = fileparse($_, qr/\.[^.]*/);
+		{name=>$name, path=>$path, ext=>lc($ext), is_dir=>$dir, orig=>$_, prior=>$dir?0:ord($ext)+1};
 	} @files;
-	@files = grep{$_->{name} ne 'meta'}@files;
+
+
+
+	@files = sort{ $a->{prior} <=> $b->{prior} || nsort($a->{'name'}, $b->{'name'}) }@files;
+	
 
 	my $tmppath = $curpath;
 	$tmppath =~ s/^\Q$datapath\E//;
@@ -47,7 +85,6 @@ get '/' => sub {
 		$lastpath .= '/'.$p;
 		push(@pp,{path=>$lastpath, name=>$p});
 	}
-	print Dumper @pp;
 	$c->render(template => 'index', files=>\@files, paths=>\@pp);
 };
 

@@ -47,7 +47,7 @@
 	%>
 	<a class="<%= $zip %> list-group-item" href="<%= $url %>" data-file="<%= $f->{orig}%>">
 		<span class="badge"></span>
-		<i class="fa <%= $icon %> fa-lg fa-fw"></i>&nbsp; <%=$f->{name}%>
+		<i class="fa <%= $icon %> fa-lg fa-fw"></i>&nbsp; <%==$f->{name}%>
 	</a>
 	% }
 </div>
