@@ -6,14 +6,14 @@ use Data::Dumper;
 use File::Basename;
 use Archive::Zip;
 use Archive::Zip::MemberRead;
-use JSON;
 use Image::Size;
+
 # Documentation browser under "/perldoc"
-plugin 'PODRenderer';
+# plugin 'PODRenderer';
 plugin "bootstrap3" => {
     theme => {
-        paper => "http://bootswatch.com/paper/_bootswatch.scss",
-        slate => "http://bootswatch.com/slate/_bootswatch.scss",
+        # paper => "http://bootswatch.com/paper/_bootswatch.scss",
+        # slate => "http://bootswatch.com/slate/_bootswatch.scss",
         darkly => "http://bootswatch.com/darkly/_bootswatch.scss",
     },
 };
