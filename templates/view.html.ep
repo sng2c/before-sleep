@@ -153,6 +153,9 @@ $ ->
 		else
 			view_img window.step
 
+	$('#stop_reading').click ()->
+		history.go(-1)
+
 	$.getJSON 'zip_list?p=<%=$file%>', (data)->
 		window.imgdata = data
 		window.totpage_save(img_key, imgdata.members.length)
@@ -170,7 +173,7 @@ $ ->
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        
+        <button class="btn btn-danger btn-sm pull-right" id="stop_reading"><i class="fa fa-level-up fa-rotate-270 fa-fw"></i> Stop Reading</button>
         <h4 class="modal-title">Go to</h4>
       </div>
       <div class="modal-body">

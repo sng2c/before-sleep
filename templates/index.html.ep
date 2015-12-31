@@ -8,7 +8,7 @@
 			key = e.data('file')
 			page = window.page_load(key)
 			if page == 0
-				page_str = 'NEW'
+				page_str = 'unread'
 			else
 				page = parseInt(page+1)
 				totpage = window.totpage_load(key)
