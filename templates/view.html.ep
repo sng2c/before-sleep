@@ -52,7 +52,7 @@ toast = (msg)->
 				$('#toast').fadeOut()
 			if window.toasttimer
 				clearTimeout(window.toasttimer)	
-			window.toasttimer = setTimeout(window.toasthider, 1000)
+			window.toasttimer = setTimeout(window.toasthider, 700)
 	})
 
 resize_img = ()->
