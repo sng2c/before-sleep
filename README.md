@@ -27,17 +27,18 @@ and Enjoy!
 ### Explorer
 
 ![Explorer](screenshots/ss1.png)
+![Explorer](screenshots/ss2.png)
 
 * Put your zip files into ./data directory.
 * If the images are for right to left reading, put a file named 'RIGHT_TO_LEFT' or 'RTL' into same directory.
 
 ### Viewer
 
-![Viewer](screenshots/ss2.png)
+![Viewer](screenshots/ss3.png)
 
 * You can flip a next/prev page by clicking in each 30% position from left/right.
 
 ### Navigator
-![Navigator](screenshots/ss3.png)
+![Navigator](screenshots/ss4.png)
 
 * You can open a navigator by clicking center.
