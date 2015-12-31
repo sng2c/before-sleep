@@ -20,23 +20,30 @@ body{
 	margin:0px;
 }
 .navi{
+	position:absolute;
+	/*background-color: rgba(255,255,255,0.1);*/
+	height:100%;
+	width:33%;
 }
 #go_left{
-	position:absolute;
-	border: 1px solid red;
-	height:100%;
-	width:25%;
+	
 }
 #go_right{
-	position:absolute;
-	border: 1px solid blue;
-	height:100%;
-	width:25%;
-	left:75%;
+	left:66%;
+}
+#toast {
+	display:none;
+	position:absolute;	
+	width:100%;
+	top:0%;
+	pointer-events:none;
 }
 </style>
 
 <script type="text/coffeescript">
+
+img_key = '<%=$file%>'
+
 resize_img = ()->
 	iratio = window.iw / window.ih # img 비율
 	if iratio > 1.0 # 가로
@@ -78,6 +85,15 @@ resize_img = ()->
 	$('#img').css('width',"#{bw}px")
 	$('#img').css('height',"#{bh}px")
 	$('#img').css('background-size',"#{w}px #{h}px")
+	$('#toast span.label').text("#{window.curpage+1} page")
+	$('#toast').fadeIn({
+		complete: ()->
+			window.toasthider = ()->
+				$('#toast').fadeOut()
+			if window.toasttimer
+				clearTimeout(window.toasttimer)	
+			window.toasttimer = setTimeout(window.toasthider, 1000)
+	})
 
 view_img = (delta)->
 	newpage = window.curpage + delta
@@ -87,27 +103,51 @@ view_img = (delta)->
 		img = window.imgdata.members[reqpage]
 	if img 
 		window.curpage = newpage
+		window.page_save(img_key, newpage)
 		imgurl = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}"
 		imgurlsize = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}&s=1"
 		$.get imgurlsize, null, (data, status, xhr)->
 			window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
 			window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
-			console.log imgurl
 			$('#img').css('background-image',"url('#{imgurl}')")
 			resize_img()
 $ ->
 	window.direction = <%=$direction%>
-	window.curpage = 0
+	window.curpage = window.page_load(img_key)
+	console.log "loaded #{window.curpage}"
+
 	$(window).on 'resize', ()->
 		resize_img()
 
-	$('#go_left').click ()->
+	$('#pager').change ()->
+		$('#menu').modal('hide')
+		page = parseInt($(this).val())
+		window.curpage = page
+		view_img 0
+		
+
+	$('#img').click ()->
+
+		$('#pager').empty()
+		reqpage = parseInt(window.curpage)
+		for i in [0...window.imgdata.members.length]
+			if i == reqpage
+				$('#pager').append "<option value='#{i}' selected>#{i+1} page</option>"
+			else
+				$('#pager').append "<option value='#{i}'>#{i+1} page</option>"
+			console.log i
+		$('#menu').modal('show')
+
+	$('#go_left').click (e)->
+		e.stopPropagation()
 		if window.direction == -1
 			view_img window.step
 		else
 			view_img -window.step
 
-	$('#go_right').click ()->
+
+	$('#go_right').click (e)->
+		e.stopPropagation()
 		if window.direction == -1
 			view_img -window.step
 		else
@@ -115,10 +155,29 @@ $ ->
 
 	$.getJSON 'zip_list?p=<%=$file%>', (data)->
 		window.imgdata = data
+		window.totpage_save(img_key, imgdata.members.length)
 		view_img 0
 </script>
 
 <div id="img">
-<div id="go_left" class="navi"></div>
-<div id="go_right" class="navi"></div>
+	<div id="go_left" class="navi"></div>
+	<div id="go_right" class="navi"></div>
+	<div id="toast" class="text-center"><h4><span class="label label-info"></span></h4></div>
 </div>
+
+
+<div class="modal fade" id="menu" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Go to</h4>
+      </div>
+      <div class="modal-body">
+        <select class="form-control" id="pager">
+        </select>
+      </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

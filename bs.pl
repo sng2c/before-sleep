@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-
+use v5.10;
 use utf8;
 use Mojolicious::Lite;
 use Data::Dumper;
@@ -8,7 +8,6 @@ use Archive::Zip;
 use Archive::Zip::MemberRead;
 use JSON;
 use Image::Size;
-use File::Slurp;
 
 # Documentation browser under "/perldoc"
 plugin 'PODRenderer';
@@ -36,20 +35,29 @@ get '/' => sub {
 	} @files;
 	@files = grep{$_->{name} ne 'meta'}@files;
 
-	$c->render(template => 'index', files=>\@files);
+	my $tmppath = $curpath;
+	$tmppath =~ s/^\Q$datapath\E//;
+
+	my @paths = grep {$_;} split(/[\\\/]/,$tmppath);
+	
+	my @pp;
+	my $lastpath = $datapath;
+
+	foreach my $p (@paths){
+		$lastpath .= '/'.$p;
+		push(@pp,{path=>$lastpath, name=>$p});
+	}
+	print Dumper @pp;
+	$c->render(template => 'index', files=>\@files, paths=>\@pp);
 };
 
 get '/view' => sub{
 	my $c = shift;
 	my $zipfile = $c->param('p');
 	my $dir = dirname($zipfile);
-	my $meta;
-	eval{
-		$meta = decode_json(read_file($dir.'/meta.json'));
-	};
 	my $direction = 1;
-	if($meta){
-		$direction = $meta->{direction};
+	if(-f $dir.'/LEFT'){
+		$direction = -1;
 	}
 	$c->render(template => 'view', file=>$zipfile, dir=>$dir, direction=>$direction);
 };
@@ -63,7 +71,6 @@ get '/zip_list' => sub{
 	my $zip = Archive::Zip->new($zipfile);
 	my @members = $zip->members();
 	@members = map{$_->fileName()}@members;
-	print Dumper @members;
 
 
 	$c->render(json=>{file=>$zipfile, dir=>$dir, members=>\@members});

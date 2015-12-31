@@ -1,31 +1,52 @@
 % layout 'default';
-% title 'Welcome';
+% title 'Before Sleep';
+
+<script type="text/coffeescript">
+	$ ->
+		$('.zip').each (idx, elem)->
+			e = $(elem)
+			key = e.data('file')
+			page = window.page_load(key)
+			if page == 0
+				page_str = 'NEW'
+			else
+				page = parseInt(page+1)
+				totpage = window.totpage_load(key)
+				if page == totpage
+					page_str = '<i class="fa fa-check"></i>'
+				else
+					page_str = "#{page} / #{totpage}"
+			$('.badge', e).html(page_str)
+</script>
 
 <ol class="breadcrumb">
-  <li><a href="#">Home</a></li>
-  <li><a href="#">Library</a></li>
-  <li class="active">Data</li>
+	<li><a href="/"><i class="fa fa-home"></i></a></li>
+% foreach my $p (@{$paths}){
+  <li><a href="?p=<%=$p->{path}%>"><%=$p->{name}%></a></li>
+% }
 </ol>
 
 <div class="list-group">
 
 	<% 
 	foreach my $f (@{$files}){
-		
+		my $zip = '';
 		my $icon = 'fa-file';
-		my $url = '';
+		my $url = '#';
 		if($f->{is_dir}){
 			$icon = 'fa-folder';
 			$url = '?p='.$f->{orig};
 		}
 		else{
 			if( $f->{ext} eq '.zip' ){
+				$zip = 'zip';
 				$icon = 'fa-file-image-o';
 				$url = 'view?p='.$f->{orig};
 			}
 		}
 	%>
-	<a class="list-group-item" href="<%= $url %>">
+	<a class="<%= $zip %> list-group-item" href="<%= $url %>" data-file="<%= $f->{orig}%>">
+		<span class="badge"></span>
 		<i class="fa <%= $icon %> fa-lg fa-fw"></i>&nbsp; <%=$f->{name}%>
 	</a>
 	% }
