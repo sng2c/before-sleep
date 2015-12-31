@@ -44,6 +44,17 @@ body{
 
 img_key = '<%=$file%>'
 
+toast = (msg)->
+	$('#toast span.label').text(msg)
+	$('#toast').fadeIn({
+		complete: ()->
+			window.toasthider = ()->
+				$('#toast').fadeOut()
+			if window.toasttimer
+				clearTimeout(window.toasttimer)	
+			window.toasttimer = setTimeout(window.toasthider, 1000)
+	})
+
 resize_img = ()->
 	iratio = window.iw / window.ih # img 비율
 	if iratio > 1.0 # 가로
@@ -85,15 +96,7 @@ resize_img = ()->
 	$('#img').css('width',"#{bw}px")
 	$('#img').css('height',"#{bh}px")
 	$('#img').css('background-size',"#{w}px #{h}px")
-	$('#toast span.label').text("#{window.curpage+1} page")
-	$('#toast').fadeIn({
-		complete: ()->
-			window.toasthider = ()->
-				$('#toast').fadeOut()
-			if window.toasttimer
-				clearTimeout(window.toasttimer)	
-			window.toasttimer = setTimeout(window.toasthider, 1000)
-	})
+	toast("page #{window.curpage+1}")
 
 view_img = (delta)->
 	newpage = window.curpage + delta
@@ -113,6 +116,8 @@ view_img = (delta)->
 				console.log "Preload #{preimg}"
 				preimgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{preimg}"
 				window.image_preload(preimgurl)
+	else
+		toast("First page")
 
 	if img 
 		window.curpage = newpage
@@ -124,6 +129,8 @@ view_img = (delta)->
 			window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
 			$('#img').css('background-image',"url('#{imgurl}')")
 			resize_img()
+	else 
+		toast("No more page")
 $ ->
 	window.direction = <%=$direction%>
 	window.curpage = window.page_load(img_key)
