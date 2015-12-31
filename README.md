@@ -12,3 +12,11 @@ Comics ZIP file web viewer
 * is written with perl(mojolicious) for ease to setup on RaspPI(archlinux).
 
 ## Enjoy!
+
+## Screen Shots
+
+![Explorer](screenshots/ss1.png)
+
+![Viewer](screenshots/ss2.png)
+
+![Navigator](screenshots/ss3.png)
