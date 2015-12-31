@@ -30,7 +30,7 @@ $ morbo ./bs.pl
 ![Explorer](screenshots/ss1.png)
 
 * Put your zip files into ./data directory.
-* If the archives are for right to left reading, put a file named 'LEFT' into same directory.
+* If the archives are for right to left reading, put a file named 'RIGHT_TO_LEFT' or 'RTL' into same directory.
 
 ### Viewer
 

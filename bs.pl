@@ -93,7 +93,7 @@ get '/view' => sub{
 	my $zipfile = $c->param('p');
 	my $dir = dirname($zipfile);
 	my $direction = 1;
-	if(-f $dir.'/LEFT'){
+	if(-f $dir.'/RTL' || -f $dir.'/RIGHT_TO_LEFT'){
 		$direction = -1;
 	}
 	$c->render(template => 'view', file=>$zipfile, dir=>$dir, direction=>$direction);
