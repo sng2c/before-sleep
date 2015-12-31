@@ -1,27 +1,26 @@
 # before_sleep
-Comics ZIP file web viewer
+Comics ZIP file web viewer service.
 
-## I want to
-* read my image archives on iPhone and Android without extraction.
-* store archives into my RaspPI in my home-network.
-* make a viewer easy.
+## I want
+* to read my image zip files on iPhone and Android without an extraction in my bed.
+* to store zip files into my RaspberryPI in my home-network.
+* to make them easier.
 
 ## So It
-* is a Web App.
-* saves my history for has read using HTML5 localStorage.
-* is written with perl(mojolicious) for ease to setup on RaspPI(archlinux).
+* is a Web-App.
+* saves my history on HTML5 localStorage.
+* is powered by perl(mojolicious) for RaspberryPI(archlinux).
 
-## Install it.
+## Install it and run.
 
 ```bash
 $ # check out this project and get in.
 $ cat cpanfile | cpanm
-$ morbo ./bs.pl
+$ morbo -l 'http://*:3000' ./bs.pl
 ....
 ```
 
-
-## Enjoy!
+and Enjoy!
 
 ## Screen Shots
 
@@ -30,7 +29,7 @@ $ morbo ./bs.pl
 ![Explorer](screenshots/ss1.png)
 
 * Put your zip files into ./data directory.
-* If the archives are for right to left reading, put a file named 'RIGHT_TO_LEFT' or 'RTL' into same directory.
+* If the images are for right to left reading, put a file named 'RIGHT_TO_LEFT' or 'RTL' into same directory.
 
 ### Viewer
 
