@@ -1,0 +1,4 @@
+data/*
+!data/.keep
+public/sass
+public/packed

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  	<title><%= title %></title>
+<!-- Bootstrap -->
+%= asset "darkly.css"
+%= asset "bootstrap.js"
+<!-- FontAwesome -->
+%= asset "font-awesome4.css"
+
+	<script type="text/javascript" src="/extra/coffee-script.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<style>
+	body {
+	  padding-top: 20px;
+	}
+	</style>
+  </head>
+  <body>
+
+
+  <div class="container-fluid">
+  <%= content %>
+  </div>
+  </body>
+</html>

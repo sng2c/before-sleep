@@ -1,0 +1,32 @@
+% layout 'default';
+% title 'Welcome';
+
+<ol class="breadcrumb">
+  <li><a href="#">Home</a></li>
+  <li><a href="#">Library</a></li>
+  <li class="active">Data</li>
+</ol>
+
+<div class="list-group">
+
+	<% 
+	foreach my $f (@{$files}){
+		
+		my $icon = 'fa-file';
+		my $url = '';
+		if($f->{is_dir}){
+			$icon = 'fa-folder';
+			$url = '?p='.$f->{orig};
+		}
+		else{
+			if( $f->{ext} eq '.zip' ){
+				$icon = 'fa-file-image-o';
+				$url = 'view?p='.$f->{orig};
+			}
+		}
+	%>
+	<a class="list-group-item" href="<%= $url %>">
+		<i class="fa <%= $icon %> fa-lg fa-fw"></i>&nbsp; <%=$f->{name}%>
+	</a>
+	% }
+</div>

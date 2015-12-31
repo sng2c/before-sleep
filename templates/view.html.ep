@@ -1,0 +1,124 @@
+% layout 'default';
+% title 'Welcome';
+
+<style>
+#img-container {
+	width:100%;
+	border: solid 1px red;
+}
+#img{
+	background-repeat: no-repeat;
+	margin:0px auto;
+	position: relative;
+}
+body{
+	padding:0px;
+	margin:0px;
+}
+.container-fluid{
+	padding:0px;
+	margin:0px;
+}
+.navi{
+}
+#go_left{
+	position:absolute;
+	border: 1px solid red;
+	height:100%;
+	width:25%;
+}
+#go_right{
+	position:absolute;
+	border: 1px solid blue;
+	height:100%;
+	width:25%;
+	left:75%;
+}
+</style>
+
+<script type="text/coffeescript">
+resize_img = ()->
+	iratio = window.iw / window.ih # img 비율
+	if iratio > 1.0 # 가로
+		window.step = 0.5
+		bratio = (window.iw/2.0) / window.ih
+	else # 세로
+		window.step = 1
+		bratio = iratio
+
+	# 윈도
+	dw = parseFloat $(window).width()
+	dh = parseFloat $(window).height()
+	dratio = dw / dh
+	if bratio < dratio
+		bh = dh 
+		bw = Math.round(bh * bratio)
+	else
+		bw = dw 
+		bh = Math.round(bw / bratio)
+
+	w = bw
+	if iratio > 1.0 
+		w *= 2
+	h = bh
+
+	console.log "DWxDH : #{dw}x#{dh}"
+	console.log "WxH : #{w}x#{h}"
+	console.log "BWxBH : #{bw}x#{bh}"
+
+
+	if window.step == 0.5
+		if window.direction == 1
+			offsetf = (window.curpage - parseInt(window.curpage))
+		else
+			offsetf = 0.5 - (window.curpage - parseInt(window.curpage))
+		offset = offsetf * w
+		$('#img').css('background-position',"-#{offset}px 0px");
+
+	$('#img').css('width',"#{bw}px")
+	$('#img').css('height',"#{bh}px")
+	$('#img').css('background-size',"#{w}px #{h}px")
+
+view_img = (delta)->
+	newpage = window.curpage + delta
+	img = null
+	if newpage >= 0
+		reqpage = parseInt(newpage)
+		img = window.imgdata.members[reqpage]
+	if img 
+		window.curpage = newpage
+		imgurl = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}"
+		imgurlsize = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}&s=1"
+		$.get imgurlsize, null, (data, status, xhr)->
+			window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
+			window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
+			console.log imgurl
+			$('#img').css('background-image',"url('#{imgurl}')")
+			resize_img()
+$ ->
+	window.direction = <%=$direction%>
+	window.curpage = 0
+	$(window).on 'resize', ()->
+		resize_img()
+
+	$('#go_left').click ()->
+		if window.direction == -1
+			view_img window.step
+		else
+			view_img -window.step
+
+	$('#go_right').click ()->
+		if window.direction == -1
+			view_img -window.step
+		else
+			view_img window.step
+
+	$.getJSON 'zip_list?p=<%=$file%>', (data)->
+		window.imgdata = data
+		view_img 0
+</script>
+
+<div id="img">
+<div id="go_left" class="navi"></div>
+<div id="go_right" class="navi"></div>
+</div>
