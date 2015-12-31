@@ -152,9 +152,9 @@ $ ->
 		reqpage = parseInt(window.curpage)
 		for i in [0...window.imgdata.members.length]
 			if i == reqpage
-				$('#pager').append "<option value='#{i}' selected>#{i+1} page</option>"
+				$('#pager').append "<option value='#{i}' selected>page #{i+1}</option>"
 			else
-				$('#pager').append "<option value='#{i}'>#{i+1} page</option>"
+				$('#pager').append "<option value='#{i}'>page #{i+1}</option>"
 		$('#menu').modal('show')
 
 	$('#go_left').click (e)->
