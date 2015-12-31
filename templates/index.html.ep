@@ -21,8 +21,12 @@
 
 <ol class="breadcrumb">
 	<li><a href="/"><i class="fa fa-home"></i></a></li>
+% my $last = pop(@{$paths});
 % foreach my $p (@{$paths}){
   <li><a href="?p=<%=$p->{path}%>"><%=$p->{name}%></a></li>
+% }
+% if( $last ){
+	<li class="active"><%=$last->{name}%></li>
 % }
 </ol>
 
