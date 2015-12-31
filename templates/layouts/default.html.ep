@@ -36,7 +36,6 @@
   <script type="text/coffeescript">
 
   window.totpage_save = (key, page)->
-    console.log "save #{window.curpage}"
     localStorage.setItem(encodeURI("TOTPAGE_#{key}"),"#{page}")
 
   window.totpage_load = (key)->
@@ -44,7 +43,6 @@
     if page? and page != 'undefined'
       return parseFloat(page)
     else
-      console.log "load #{page}"
       return 0
 
   window.page_save = (key, page)->
@@ -56,8 +54,12 @@
     if page? and page != 'undefined'
       return parseFloat(page)
     else
-      console.log "load #{page}"
       return 0
+
+  window.preload = new Image()
+  window.image_preload = (url)->
+    window.preload.src = url
+    
   </script>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">

@@ -69,9 +69,9 @@ resize_img = ()->
 		w *= 2
 	h = bh
 
-	console.log "DWxDH : #{dw}x#{dh}"
-	console.log "WxH : #{w}x#{h}"
-	console.log "BWxBH : #{bw}x#{bh}"
+	#console.log "DWxDH : #{dw}x#{dh}"
+	#console.log "WxH : #{w}x#{h}"
+	#console.log "BWxBH : #{bw}x#{bh}"
 
 
 	if window.step == 0.5
@@ -97,15 +97,28 @@ resize_img = ()->
 
 view_img = (delta)->
 	newpage = window.curpage + delta
+	
+
 	img = null
 	if newpage >= 0
 		reqpage = parseInt(newpage)
 		img = window.imgdata.members[reqpage]
+
+		# preload next image
+		prenewpage = newpage+delta
+		prereqpage = parseInt(prenewpage)
+		if( prereqpage != reqpage)
+			preimg = window.imgdata.members[prereqpage]
+			if preimg
+				console.log "Preload #{preimg}"
+				preimgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{preimg}"
+				window.image_preload(preimgurl)
+
 	if img 
 		window.curpage = newpage
 		window.page_save(img_key, newpage)
-		imgurl = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}"
-		imgurlsize = encodeURI "zip_img?p=#{imgdata.file}&n=#{img}&s=1"
+		imgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}"
+		imgurlsize = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}&s=1"
 		$.get imgurlsize, null, (data, status, xhr)->
 			window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
 			window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
@@ -114,7 +127,7 @@ view_img = (delta)->
 $ ->
 	window.direction = <%=$direction%>
 	window.curpage = window.page_load(img_key)
-	console.log "loaded #{window.curpage}"
+	#console.log "loaded #{window.curpage}"
 
 	$(window).on 'resize', ()->
 		resize_img()
@@ -135,7 +148,6 @@ $ ->
 				$('#pager').append "<option value='#{i}' selected>#{i+1} page</option>"
 			else
 				$('#pager').append "<option value='#{i}'>#{i+1} page</option>"
-			console.log i
 		$('#menu').modal('show')
 
 	$('#go_left').click (e)->
