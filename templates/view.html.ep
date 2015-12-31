@@ -102,7 +102,6 @@ view_img = (delta)->
 	newpage = window.curpage + delta
 	
 
-	img = null
 	if newpage >= 0
 		reqpage = parseInt(newpage)
 		img = window.imgdata.members[reqpage]
@@ -116,21 +115,22 @@ view_img = (delta)->
 				console.log "Preload #{preimg}"
 				preimgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{preimg}"
 				window.image_preload(preimgurl)
+		if img
+			window.curpage = newpage
+			window.page_save(img_key, newpage)
+			imgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}"
+			imgurlsize = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}&s=1"
+			$.get imgurlsize, null, (data, status, xhr)->
+				window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
+				window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
+				$('#img').css('background-image',"url('#{imgurl}')")
+				resize_img()
+		else 
+			toast("No more page")
 	else
 		toast("First page")
 
-	if img 
-		window.curpage = newpage
-		window.page_save(img_key, newpage)
-		imgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}"
-		imgurlsize = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}&s=1"
-		$.get imgurlsize, null, (data, status, xhr)->
-			window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
-			window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
-			$('#img').css('background-image',"url('#{imgurl}')")
-			resize_img()
-	else 
-		toast("No more page")
+
 $ ->
 	window.direction = <%=$direction%>
 	window.curpage = window.page_load(img_key)
