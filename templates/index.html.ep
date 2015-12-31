@@ -20,7 +20,7 @@
 </script>
 
 <ol class="breadcrumb">
-	<li><a href="/"><i class="fa fa-home"></i></a></li>
+	<li><a href="/"><i class="fa fa-home fa-lg fa-fw"></i></a></li>
 % my $last = pop(@{$paths});
 % foreach my $p (@{$paths}){
   <li><a href="?p=<%=$p->{path}%>"><%=$p->{name}%></a></li>
