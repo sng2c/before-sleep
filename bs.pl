@@ -108,6 +108,7 @@ get '/zip_list' => sub{
 	my $zip = Archive::Zip->new($zipfile);
 	my @members = $zip->members();
 	@members = map{$_->fileName()}@members;
+	@members = sort{nsort($a,$b)}@members;
 
 
 	$c->render(json=>{file=>$zipfile, dir=>$dir, members=>\@members});
