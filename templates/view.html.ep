@@ -96,7 +96,7 @@ resize_img = ()->
 	$('#img').css('width',"#{bw}px")
 	$('#img').css('height',"#{bh}px")
 	$('#img').css('background-size',"#{w}px #{h}px")
-	toast("page #{window.curpage+1}")
+	# toast("page #{window.curpage+1}")
 
 view_img = (delta)->
 	newpage = window.curpage + delta
