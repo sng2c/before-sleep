@@ -7,6 +7,7 @@ use File::Basename;
 use Archive::Zip;
 use Archive::Zip::MemberRead;
 use Image::Size;
+use MIME::Base64;
 
 # Documentation browser under "/perldoc"
 # plugin 'PODRenderer';
@@ -112,6 +113,44 @@ get '/zip_list' => sub{
 
 
 	$c->render(json=>{file=>$zipfile, dir=>$dir, members=>\@members});
+};
+
+get '/zip_b64' => sub{
+	my $c = shift;
+	my $zipfile = $c->param('p');
+	my $name = $c->param('n');
+	
+
+	my ($n, $p, $ext) = fileparse($name, qr/\.[^.]*/); 
+	$ext = lc($ext);
+	$ext =~ /\.(.+?)$/;
+	$ext = $1;
+
+	my $dir = dirname($zipfile);
+
+	my $zip = Archive::Zip->new($zipfile);
+	my $mem = $zip->memberNamed($name);
+	my $fh = $mem->readFileHandle();
+	my $bytes = '';
+	while (1){
+		my $buffer;
+		my $read = $fh->read($buffer, 4096);
+		die "FATAL ERROR reading my secrets !\n" if (!defined($read));
+		last if (!$read);
+		$bytes .= substr $buffer, 0, $read;
+	}
+	$fh->close();
+	$c->res->headers->append('Cache-Control','max-age=3600, must-revalidate');
+	
+
+	my $data = {};
+
+	my ($x, $y, $id) = imgsize(\$bytes);
+	$data->{width} = $x;
+	$data->{height} = $y;
+	$data->{type} = "image/".lc($id);
+	$data->{data} = 'data:'.$data->{type}.';base64,'.encode_base64($bytes,'');
+	$c->render(json=>$data);
 };
 
 get '/zip_img' => sub{

@@ -56,9 +56,10 @@
       else
         return 0
 
-    window.preload = new Image()
+    window.preload_url = null
+    window.preload_data = null
     window.image_preload = (url)->
-      window.preload.src = url
+      
 
     </script>
 

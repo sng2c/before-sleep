@@ -111,6 +111,23 @@ view_img = (delta)->
 		reqpage = parseInt(newpage)
 		img = window.imgdata.members[reqpage]
 
+		load_img = (data)->
+			window.iw = data.width
+			window.ih = data.height
+			$('#img').css('background-image',"url(#{data.data})")
+			resize_img()
+
+		if img
+			window.curpage = newpage
+			window.page_save(img_key, newpage)
+			imgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{img}"
+			if window.preload_url == imgurl
+				load_img preload_data
+			else
+				$.getJSON imgurl, load_img
+		else 
+			toast("No more page")
+
 		# preload next image
 		prenewpage = newpage+delta
 		prereqpage = parseInt(prenewpage)
@@ -118,20 +135,10 @@ view_img = (delta)->
 			preimg = window.imgdata.members[prereqpage]
 			if preimg
 				console.log "Preload #{preimg}"
-				preimgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{preimg}"
-				window.image_preload(preimgurl)
-		if img
-			window.curpage = newpage
-			window.page_save(img_key, newpage)
-			imgurl = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}"
-			imgurlsize = encodeURI "zip_img?p=#{window.imgdata.file}&n=#{img}&s=1"
-			$.get imgurlsize, null, (data, status, xhr)->
-				window.iw = parseFloat xhr.getResponseHeader('X-IMAGE-WIDTH')
-				window.ih = parseFloat xhr.getResponseHeader('X-IMAGE-HEIGHT')
-				$('#img').css('background-image',"url('#{imgurl}')")
-				resize_img()
-		else 
-			toast("No more page")
+				preimgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{preimg}"
+				window.preload_url = preimgurl
+				$.getJSON preimgurl, (data)->
+					window.preload_data = data
 	else
 		toast("First page")
 
