@@ -44,7 +44,6 @@ body{
 	position: relative;
 	width:100%;
 	height:100%;
-	background-color: rgba(0,0,0,0.5);
 	display: none;
 	text-align: center;
 	padding-top:50%;
@@ -62,8 +61,10 @@ body{
 	pointer-events:none;
 }
 </style>
-
+<script type="text/javascript" src="/extra/lru.js"></script>
 <script type="text/coffeescript">
+
+cache = new LRUCache(5);
 
 img_key = '<%=$file%>'
 
@@ -140,10 +141,13 @@ view_img = (delta)->
 			window.curpage = newpage
 			window.page_save(img_key, newpage)
 			imgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{img}"
-			if window.preload_url == imgurl
-				load_img preload_data
+
+			$('#loading').show()
+			cached_data = cache.get(reqpage)
+			if cached_data?
+				console.log 'cached'
+				load_img cached_data
 			else
-				$('#loading').show()
 				$.getJSON imgurl, load_img
 		else 
 			toast("No more page")
@@ -151,14 +155,15 @@ view_img = (delta)->
 		# preload next image
 		prenewpage = newpage+(if delta != 0 then delta else window.step)
 		prereqpage = parseInt(prenewpage)
-		if( prereqpage != reqpage)
+
+		cached_data = cache.get(prereqpage)
+		if not cached_data?
 			preimg = window.imgdata.members[prereqpage]
 			if preimg
 				console.log "Preload #{preimg}"
 				preimgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{preimg}"
-				window.preload_url = preimgurl
 				$.getJSON preimgurl, (data)->
-					window.preload_data = data
+					cache.put(prereqpage, data)
 	else
 		toast("First page")
 
