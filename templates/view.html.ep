@@ -36,6 +36,21 @@ body{
 #go_right{
 	left:66%;
 }
+
+#loading{
+	position: relative;
+	width:100%;
+	height:100%;
+	background-color: rgba(0,0,0,0.5);
+	display: none;
+	text-align: center;
+	padding-top:50%;
+}
+#loading-icon{
+	
+}
+
+
 #toast {
 	display:none;
 	position:absolute;	
@@ -115,6 +130,7 @@ view_img = (delta)->
 			window.iw = data.width
 			window.ih = data.height
 			$('#img').css('background-image',"url(#{data.data})")
+			$('#loading').hide()
 			resize_img()
 
 		if img
@@ -124,6 +140,7 @@ view_img = (delta)->
 			if window.preload_url == imgurl
 				load_img preload_data
 			else
+				$('#loading').show()
 				$.getJSON imgurl, load_img
 		else 
 			toast("No more page")
@@ -194,9 +211,15 @@ $ ->
 </script>
 
 <div id="img">
+
 	<div id="go_left" class="navi"></div>
 	<div id="go_right" class="navi"></div>
 	<div id="toast" class="text-center"><h4><span class="label label-info"></span></h4></div>
+	<div id="loading">
+		<div id="loading-icon">
+			<i class="fa fa-circle-o-notch fa-5x fa-spin"></i>
+		</div>
+	</div>
 </div>
 
 
