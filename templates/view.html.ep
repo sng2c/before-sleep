@@ -172,7 +172,7 @@ $ ->
 
 		if( touches.length == 2 )
 			console.log ev.originalEvent.touches
-			dist = Math.sqrt(Math.abs(touches[0].x * (touches[1].x-touches[0].x)) + Math.abs(touches[0].y * (touches[1].y-touches[0].y)))
+			dist = Math.sqrt(Math.abs(touches[0].clientX * (touches[1].clientX-touches[0].clientX)) + Math.abs(touches[0].clientY * (touches[1].clientY-touches[0].clientY)))
 			window.touchdist = dist
 
 	$('#img').on 'touchmove', (ev)->
@@ -184,7 +184,7 @@ $ ->
 
 		if( touches.length == 2 )
 			console.log ev.originalEvent.touches
-			dist = Math.sqrt(Math.abs(touches[0].x * (touches[1].x-touches[0].x)) + Math.abs(touches[0].y * (touches[1].y-touches[0].y)))
+			dist = Math.sqrt(Math.abs(touches[0].clientX * (touches[1].clientX-touches[0].clientX)) + Math.abs(touches[0].clientY * (touches[1].clientY-touches[0].clientY)))
 			sdist = window.touchdist
 			toast "dist = #{dist-sdist}"
 	$('#img').on 'touchend', (ev)->
