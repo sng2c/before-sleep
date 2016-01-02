@@ -2,6 +2,11 @@
 % title 'Before Sleep';
 
 <style>
+
+.modal-dialog {
+  
+}
+
 #img-container {
 	width:100%;
 	border: solid 1px red;
@@ -156,6 +161,35 @@ $ ->
 			else
 				$('#pager').append "<option value='#{i}'>page #{i+1}</option>"
 		$('#menu').modal('show')
+
+
+	$('#img').on 'touchstart', (ev)->
+		touches = ev.originalEvent.touches
+		if( touches.length == 1 )
+			window.firsttouch = touches[0]
+			console.log window.firsttouch
+			window.touchdist = 0
+
+		if( touches.length == 2 )
+			console.log ev.originalEvent.touches
+			dist = Math.sqrt(Math.abs(touches[0].x * (touches[1].x-touches[0].x)) + Math.abs(touches[0].y * (touches[1].y-touches[0].y)))
+			window.touchdist = dist
+
+	$('#img').on 'touchmove', (ev)->
+		touches = ev.originalEvent.touches
+		if( touches.length == 1 )
+			dist = Math.sqrt(Math.abs(window.firsttouch.clientX * (touches[0].clientX-window.firsttouch.clientX)) + Math.abs(window.firsttouch.clientY * (touches[0].clientY-window.firsttouch.clientY)))
+			console.log "dist = #{dist}"
+
+
+		if( touches.length == 2 )
+			console.log ev.originalEvent.touches
+			dist = Math.sqrt(Math.abs(touches[0].x * (touches[1].x-touches[0].x)) + Math.abs(touches[0].y * (touches[1].y-touches[0].y)))
+			sdist = window.touchdist
+			toast "dist = #{dist-sdist}"
+	$('#img').on 'touchend', (ev)->
+		window.touchdist = 0;
+
 
 	$('#go_left').click (e)->
 		e.stopPropagation()
