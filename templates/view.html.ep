@@ -129,7 +129,7 @@ view_img = (delta)->
 			toast("No more page")
 
 		# preload next image
-		prenewpage = newpage+delta
+		prenewpage = newpage+(if delta != 0 then delta else window.step)
 		prereqpage = parseInt(prenewpage)
 		if( prereqpage != reqpage)
 			preimg = window.imgdata.members[prereqpage]
