@@ -235,7 +235,7 @@ $ ->
     <div class="modal-content">
       <div class="modal-header">
         <button class="btn btn-danger btn-sm pull-right" id="stop_reading"><i class="fa fa-level-up fa-rotate-270 fa-fw"></i> Stop Reading</button>
-        <h4 class="modal-title">Go to</h4>
+        <h4 class="modal-title"><%= $filename %></h4>
       </div>
       <div class="modal-body">
         <select class="form-control" id="pager">

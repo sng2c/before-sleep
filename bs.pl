@@ -97,7 +97,8 @@ get '/view' => sub{
 	if(-f $dir.'/RTL' || -f $dir.'/RIGHT_TO_LEFT'){
 		$direction = -1;
 	}
-	$c->render(template => 'view', file=>$zipfile, dir=>$dir, direction=>$direction);
+	my $filename = basename($zipfile);
+	$c->render(template => 'view', file=>$zipfile, dir=>$dir, direction=>$direction, filename=>$filename,);
 };
 
 get '/zip_list' => sub{
@@ -106,10 +107,12 @@ get '/zip_list' => sub{
 	my $dir = dirname($zipfile);
 
 
+
 	my $zip = Archive::Zip->new($zipfile);
 	my @members = $zip->members();
 	@members = map{$_->fileName()}@members;
 	@members = sort{nsort($a,$b)}@members;
+	
 
 
 	$c->render(json=>{file=>$zipfile, dir=>$dir, members=>\@members});
