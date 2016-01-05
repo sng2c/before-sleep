@@ -29,7 +29,7 @@ body{
 }
 .navi{
 	position:absolute;
-	/*background-color: rgba(255,255,255,0.1);*/
+	
 	height:100%;
 	width:33%;
 }
@@ -41,15 +41,28 @@ body{
 }
 
 #loading{
-	position: relative;
+	position: absolute;
 	width:100%;
 	height:100%;
+	top:0px;
+	left:0px;
+
 	display: none;
-	text-align: center;
-	padding-top:50%;
+	
+	background-color: rgba(0,0,0,0.5);
+}
+#loading-inner{
+	width: 100%;
+	min-height: 100%;
+	min-height: 100vh;
+	
+	display : flex;
+   align-items : center;
 }
 #loading-icon{
-	
+	/*margin-top:50%;*/
+	margin: 0 auto;
+   
 }
 
 
@@ -122,6 +135,15 @@ resize_img = ()->
 	$('#img').css('background-size',"#{w}px #{h}px")
 	# toast("page #{window.curpage+1}")
 
+
+show_loading = ()->
+	console.log "show_loading"
+	$('#loading').show()
+hide_loading = ()->
+	console.log "hide_loading"	
+	$('#loading').hide()
+
+
 view_img = (delta)->
 	newpage = window.curpage + delta
 	
@@ -134,20 +156,22 @@ view_img = (delta)->
 			window.iw = data.width
 			window.ih = data.height
 			$('#img').css('background-image',"url(#{data.data})")
-			$('#loading').hide()
+			hide_loading()
 			resize_img()
 
+		
 		if img
 			window.curpage = newpage
 			window.page_save(img_key, newpage)
 			imgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{img}"
 
-			$('#loading').show()
+			
 			cached_data = cache.get(reqpage)
 			if cached_data?
 				console.log 'cached'
 				load_img cached_data
 			else
+				show_loading()
 				$.getJSON imgurl, load_img
 		else 
 			toast("No more page")
@@ -155,7 +179,6 @@ view_img = (delta)->
 		# preload next image
 		prenewpage = newpage+(if delta != 0 then delta else window.step)
 		prereqpage = parseInt(prenewpage)
-
 		cached_data = cache.get(prereqpage)
 		if not cached_data?
 			preimg = window.imgdata.members[prereqpage]
@@ -164,6 +187,7 @@ view_img = (delta)->
 				preimgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{preimg}"
 				$.getJSON preimgurl, (data)->
 					cache.put(prereqpage, data)
+					
 	else
 		toast("First page")
 
@@ -221,12 +245,15 @@ $ ->
 <div id="img">
 	<div id="go_left" class="navi"></div>
 	<div id="go_right" class="navi"></div>
+	
 	<div id="toast" class="text-center"><h4><span class="label label-info"></span></h4></div>
 </div>
 
 <div id="loading">
-	<div id="loading-icon">
-		<i class="fa fa-circle-o-notch fa-5x fa-spin"></i>
+	<div id="loading-inner"  class="text-center">
+		<div id="loading-icon">
+			<i class="fa fa-circle-o-notch fa-5x fa-spin"></i>
+		</div>
 	</div>
 </div>
 
