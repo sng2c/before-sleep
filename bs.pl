@@ -19,6 +19,12 @@ plugin "bootstrap3" => {
     },
 };
 plugin "FontAwesome4";
+plugin 'CHI' => {
+  default => {
+    driver => 'File',
+    root_dir => './cache',
+  }
+};
 
 my $datapath = './data';
 
@@ -154,44 +160,6 @@ get '/zip_b64' => sub{
 	$data->{type} = "image/".lc($id);
 	$data->{data} = 'data:'.$data->{type}.';base64,'.encode_base64($bytes,'');
 	$c->render(json=>$data);
-};
-
-get '/zip_img' => sub{
-	my $c = shift;
-	my $zipfile = $c->param('p');
-	my $name = $c->param('n');
-	my $size = $c->param('s');
-
-	my ($n, $p, $ext) = fileparse($name, qr/\.[^.]*/); 
-	$ext = lc($ext);
-	$ext =~ /\.(.+?)$/;
-	$ext = $1;
-
-	my $dir = dirname($zipfile);
-
-	my $zip = Archive::Zip->new($zipfile);
-	my $mem = $zip->memberNamed($name);
-	my $fh = $mem->readFileHandle();
-	my $bytes = '';
-	while (1){
-		my $buffer;
-		my $read = $fh->read($buffer, 4096);
-		die "FATAL ERROR reading my secrets !\n" if (!defined($read));
-		last if (!$read);
-		$bytes .= substr $buffer, 0, $read;
-	}
-	$fh->close();
-	$c->res->headers->append('Cache-Control','max-age=3600, must-revalidate');
-	if($size){
-		my ($x, $y, $id) = imgsize(\$bytes);
-		$c->res->headers->append('X-IMAGE-WIDTH', $x);
-		$c->res->headers->append('X-IMAGE-HEIGHT', $y);
-		$c->render(text=>'ok');
-	}
-	else{
-		$c->render(data => $bytes, format => $ext);
-	}
-
 };
 
 app->start;
