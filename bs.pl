@@ -9,6 +9,8 @@ use Archive::Zip::MemberRead;
 use Image::Size;
 use MIME::Base64;
 
+app->config(hypnotoad => {listen => ['http://*:3000']});
+
 # Documentation browser under "/perldoc"
 # plugin 'PODRenderer';
 plugin "bootstrap3" => {
