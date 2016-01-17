@@ -173,7 +173,8 @@ view_img = (delta)->
 		prereqpage = parseInt(prenewpage)
 		cached_data = cache.get(prereqpage)
 		if not cached_data?
-			preimg = window.imgdata.members[prereqpage]
+			nextmem = window.imgdata.members[prereqpage]
+			preimg = nextmem.filename
 			if preimg
 				console.log "Preload #{preimg}"
 				preimgurl = encodeURI "zip_b64?p=#{window.imgdata.file}&n=#{preimg}"

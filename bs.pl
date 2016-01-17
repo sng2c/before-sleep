@@ -29,6 +29,25 @@ plugin 'CHI' => {
   }
 };
 
+
+use IO::Compress::Gzip 'gzip';
+
+hook after_render => sub {
+	my ($c, $output, $format) = @_;
+
+	# Check if "gzip => 1" has been set in the stash
+	return unless $c->stash->{gzip};
+
+	# Check if user agent accepts GZip compression
+	return unless ($c->req->headers->accept_encoding // '') =~ /gzip/i;
+	$c->res->headers->append(Vary => 'Accept-Encoding');
+
+	# Compress content with GZip
+	$c->res->headers->content_encoding('gzip');
+	gzip $output, \my $compressed;
+	$$output = $compressed;
+};
+
 my $datapath = './data';
 
 sub nsort{
@@ -139,7 +158,7 @@ sub get_list{
 		@members = sort{nsort($a->{filename},$b->{filename})}@members;
 
 		$data = {file=>$zipfile, dir=>$dir, members=>\@members};
-		# $c->chi()->set($ckey, $data, '1d');
+		$c->chi()->set($ckey, $data, '1d');
 	}
 	return $data;
 }
@@ -159,7 +178,7 @@ get '/zip_b64' => sub{
 	my $size = -s $zipfile;	
 	my $ckey = "zip_b64:$zipfile:$size:$name";
 	my $data = $c->chi()->get($ckey);
-	
+
 	unless( $data ){
 		my ($n, $p, $ext) = fileparse($name, qr/\.[^.]*/); 
 		$ext = lc($ext);
@@ -191,7 +210,8 @@ get '/zip_b64' => sub{
 		$data->{data} = 'data:'.$data->{type}.';base64,'.encode_base64($bytes,'');
 		$c->chi()->set($ckey, $data, '1d');
 	}
-	$c->render(json=>$data);
+	# $c->stash->{gzip} = 1;
+	$c->render(json=>$data, gzip=>1);
 };
 
 app->start;
