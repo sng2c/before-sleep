@@ -25,6 +25,7 @@ plugin 'CHI' => {
   default => {
     driver => 'File',
     root_dir => './cache',
+
   }
 };
 
@@ -109,58 +110,87 @@ get '/view' => sub{
 	$c->render(template => 'view', file=>$zipfile, dir=>$dir, direction=>$direction, filename=>$filename,);
 };
 
+sub get_size{
+	my $member = shift;
+	my $fh = $member->readFileHandle();
+	my $buffer;
+	my $read = $fh->read($buffer, 1024);
+	die "FATAL ERROR reading my secrets !\n" if (!defined($read));
+	my $bytes = substr $buffer, 0, $read;
+	$fh->close();
+	my ($x, $y, $id) = imgsize(\$bytes);
+	return {filename=> $member->fileName(), width=>$x, height=>$y, type=>"image/".lc($id)};
+}
+
+sub get_list{
+	my $c = shift;
+	my $zipfile = shift;
+	my $dir = dirname($zipfile);
+
+	my $size = -s $zipfile;
+
+	my $ckey = "zip_list:$zipfile:$size";
+	my $data = $c->chi()->get($ckey);
+
+	unless( $data ){
+		my $zip = Archive::Zip->new($zipfile);
+		my @members = $zip->members();
+		@members = map{get_size($_);}@members;
+		@members = sort{nsort($a->{filename},$b->{filename})}@members;
+
+		$data = {file=>$zipfile, dir=>$dir, members=>\@members};
+		# $c->chi()->set($ckey, $data, '1d');
+	}
+	return $data;
+}
+
 get '/zip_list' => sub{
 	my $c = shift;
 	my $zipfile = $c->param('p');
-	my $dir = dirname($zipfile);
-
-
-
-	my $zip = Archive::Zip->new($zipfile);
-	my @members = $zip->members();
-	@members = map{$_->fileName()}@members;
-	@members = sort{nsort($a,$b)}@members;
-	
-
-
-	$c->render(json=>{file=>$zipfile, dir=>$dir, members=>\@members});
+	my $data = get_list($c,$zipfile);
+	$c->render(json=>$data);
 };
 
 get '/zip_b64' => sub{
 	my $c = shift;
 	my $zipfile = $c->param('p');
 	my $name = $c->param('n');
+
+	my $size = -s $zipfile;	
+	my $ckey = "zip_b64:$zipfile:$size:$name";
+	my $data = $c->chi()->get($ckey);
 	
+	unless( $data ){
+		my ($n, $p, $ext) = fileparse($name, qr/\.[^.]*/); 
+		$ext = lc($ext);
+		$ext =~ /\.(.+?)$/;
+		$ext = $1;
 
-	my ($n, $p, $ext) = fileparse($name, qr/\.[^.]*/); 
-	$ext = lc($ext);
-	$ext =~ /\.(.+?)$/;
-	$ext = $1;
+		my $dir = dirname($zipfile);
 
-	my $dir = dirname($zipfile);
+		my $zip = Archive::Zip->new($zipfile);
+		my $mem = $zip->memberNamed($name);
+		my $fh = $mem->readFileHandle();
+		my $bytes = '';
+		while (1){
+			my $buffer;
+			my $read = $fh->read($buffer, 4096);
+			die "FATAL ERROR reading my secrets !\n" if (!defined($read));
+			last if (!$read);
+			$bytes .= substr $buffer, 0, $read;
+		}
+		$fh->close();
+		$c->res->headers->append('Cache-Control','max-age=3600, must-revalidate');
+		
 
-	my $zip = Archive::Zip->new($zipfile);
-	my $mem = $zip->memberNamed($name);
-	my $fh = $mem->readFileHandle();
-	my $bytes = '';
-	while (1){
-		my $buffer;
-		my $read = $fh->read($buffer, 4096);
-		die "FATAL ERROR reading my secrets !\n" if (!defined($read));
-		last if (!$read);
-		$bytes .= substr $buffer, 0, $read;
+		$data = {};
+		my ($x, $y, $id) = imgsize(\$bytes);
+		$data->{width} = $x;
+		$data->{height} = $y;
+		$data->{type} = "image/".lc($id);
+		$data->{data} = 'data:'.$data->{type}.';base64,'.encode_base64($bytes,'');
+		$c->chi()->set($ckey, $data, '1d');
 	}
-	$fh->close();
-	$c->res->headers->append('Cache-Control','max-age=3600, must-revalidate');
-	
-
-	my $data = {};
-
-	my ($x, $y, $id) = imgsize(\$bytes);
-	$data->{width} = $x;
-	$data->{height} = $y;
-	$data->{type} = "image/".lc($id);
-	$data->{data} = 'data:'.$data->{type}.';base64,'.encode_base64($bytes,'');
 	$c->render(json=>$data);
 };
 

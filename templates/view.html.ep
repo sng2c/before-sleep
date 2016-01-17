@@ -139,10 +139,10 @@ hide_loading = ()->
 view_img = (delta)->
 	newpage = window.curpage + delta
 	
-
 	if newpage >= 0
 		reqpage = parseInt(newpage)
-		img = window.imgdata.members[reqpage]
+		mem = window.imgdata.members[reqpage]
+		img = mem.filename
 
 		load_img = (data)->
 			window.iw = data.width
